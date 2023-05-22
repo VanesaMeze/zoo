@@ -5,103 +5,114 @@ const listOfAnimals = [
     name: "krava",
     species: "mamel",
     date_of_birth: new Date().toDateString(),
-    sector: "papkar"
+    sector: "bird",
   },
   {
     name: "delfin",
     species: "mamel",
-    date_of_birth: new Date().toDateString(),
-    sector: "sisar"
+    sector: "bird",
   },
   {
     name: "koza",
     species: "mamel",
-    date_of_birth: new Date().toDateString(),
-    sector: "papkar"
+    sector: "bird",
   },
   {
     name: "ovca",
     species: "mamel",
     date_of_birth: new Date().toDateString(),
-    sector: "papkar"
+    sector: "snake",
   },
   {
     name: "pas",
     species: "mamel",
     date_of_birth: new Date().toDateString(),
-    sector: "sisar"
+    sector: "snake",
   },
 ];
+
+const animalSector = ["bird", "snake"];
 
 const AnimalList = () => {
   //IDE HOOK
   const [animals, setAnimals] = useState(listOfAnimals);
-
-  const [state, setState] = useState({
-    name: "",
-    species: "",
-    date_of_birth: "",
-    sector: ""
-  });
+  const [animalSectors, setAnimalSectors] = useState(animalSector);
+  const [name, setName] = useState("");
+  const [species, setSpecies] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState("");
+  const [sector, setSector] = useState("");
 
   const onRemove = (name) => {
     setAnimals((prevState) =>
-      prevState.filter((animal) => animal.name !== name)
+      prevState.filter((animal) => animal.name === name)
     );
   };
 
-  const onMoveToTop = (name) => {
-    setAnimals((prevState) => 
-      prevState = [prevState.filter((animal) => animal.name === name)[0], ...prevState.filter((animal) => animal.name !== name)]
-    );
-  }
+  const onTop = (index) => {
+    const topAnimal = animals[index];
+    setAnimals((prevState) => [
+      topAnimal,
+      ...prevState.filter((_, id) => id !== index),
+    ]);
+  };
 
-  const handleInputChange = (event) => {
-    const { name, value } = event.target;
-    setState((prevState) => ({
+  const onInputNameChange = (e) => {
+    setName(e.target.value);
+  };
+
+  const onInputSpeciesChange = (e) => {
+    setSpecies(e.target.value);
+  };
+
+  const onInputDateOfBirthChange = (e) => {
+    setDateOfBirth(e.target.value);
+  };
+
+  const onInputSectorChange = (e) => {
+    setSector(e.target.value);
+  };
+
+  const addAnimal = (e) => {
+    e.preventDefault();
+
+    setAnimals((prevState) => [
       ...prevState,
-      [name]: value
-    }));
+      {
+        name: name,
+        species: species,
+        date_of_birth: dateOfBirth,
+      },
+    ]);
   };
 
-  const onSector = (sector) => {
-    let sectorAnimals = animals.filter((animal) => animal.sector == sector);
-    let animalsCombined = "";
-    sectorAnimals.forEach(animal => animalsCombined += animal.name + ' ');
-    alert(animalsCombined);
-  }
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    console.log(state.sector);
-
-    let newAnimal = {
-      name: state.name,
-      species: state.species,
-      date_of_birth: state.date_of_birth,
-      sector: state.sector
-    }
-    console.log(state);
-    
-    setAnimals((prevState) => prevState = [...prevState, newAnimal]);
-  }
+  const showAnimals = (sectorName) => {
+    alert(
+      animals
+        .filter((animal) => animal.sector === sectorName)
+        .map((animal) => animal.name)
+    );
+  };
 
   return (
     <div>
-      <form onSubmit={handleSubmit} style={{border: "1px solid black", padding: "5px", borderRadius: "5px"}}>
-        Name:
-        <input type="text" name="name" value={state.name} onChange={handleInputChange} />
-        Species:
-        <input type="text" name="species" value={state.species} onChange={handleInputChange} />
-        Date:
-        <input type="date" name="date_of_birth" value={state.date_of_birth} onChange={handleInputChange} />
-        <select name="sector" value={state.sector} onChange={handleInputChange} >
-          <option disabled defaultValue>Select sector:</option>
-          <option value="sisar">sisar</option>
-          <option value="papkar">papkar</option>
-          <option value="ptica">ptica</option>
+      <form>
+        <label>Name</label>
+        <input type="text" onChange={onInputNameChange} />
+
+        <label>Species</label>
+        <input type="text" onChange={onInputSpeciesChange} />
+
+        <label>Date of Birth</label>
+        <input type="date" onChange={onInputDateOfBirthChange} />
+
+        <select onSelect={onInputSectorChange}>
+          <option value="bird">Bird</option>
+          <option value="snake">Snake</option>
         </select>
-        <button type="submit">Add animal</button>
+
+        <button onSubmit={addAnimal} type="submit">
+          Add Animal
+        </button>
       </form>
       <table>
         <thead>
@@ -109,6 +120,7 @@ const AnimalList = () => {
             <th>Ime zivotinje</th>
             <th>Vrsta zivotinje</th>
             <th>Datum zivotinje</th>
+            <th>Sektor zivotinje</th>
             <th>Remove</th>
           </tr>
         </thead>
@@ -118,16 +130,30 @@ const AnimalList = () => {
             <tr key={index}>
               <td>{animal.name}</td>
               <td>{animal.species}</td>
+              <td>{animal.date_of_birth}</td>
               <td>{animal.sector}</td>
-              <td>{animal.date_of_birth ? animal.date_of_birth : "Nepoznato"}</td>
               <td>
                 <button onClick={() => onRemove(animal.name)}>Remove</button>
+                <button onClick={() => onTop(index)}>Move to top</button>
               </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <table>
+        <thead>
+          <tr>
+            <th>Ime sektora</th>
+            <th>Show</th>
+          </tr>
+        </thead>
+        <tbody>
+          {animalSectors.map((sector, index) => (
+            // pozovi hook
+            <tr key={index}>
+              <td>{sector}</td>
               <td>
-                <button onClick={() => onMoveToTop(animal.name)}>Move To Top</button>
-              </td>
-              <td>
-                <button onClick={() => onSector(animal.sector)}>Show Sector</button>
+                <button onClick={() => showAnimals(sector)}>Show</button>
               </td>
             </tr>
           ))}
