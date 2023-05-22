@@ -10,11 +10,13 @@ const listOfAnimals = [
   {
     name: "delfin",
     species: "mamel",
+    date_of_birth: new Date().toDateString(),
     sector: "sisar"
   },
   {
     name: "koza",
     species: "mamel",
+    date_of_birth: new Date().toDateString(),
     sector: "papkar"
   },
   {
