@@ -1,164 +1,115 @@
 import { useState } from "react";
+import AnimalForm from "./AnimalForm";
+import AnimalsDisplay from "./AnimalsDisplay";
+import SectorsDisplay from "./SectorsDisplay";
 
 const listOfAnimals = [
   {
     name: "krava",
-    species: "mamel",
+    species: "mammal",
     date_of_birth: new Date().toDateString(),
-    sector: "bird",
+    sector: "snake",
   },
   {
     name: "delfin",
-    species: "mamel",
-    sector: "bird",
+    species: "mammal",
+    sector: "snake",
   },
   {
     name: "koza",
-    species: "mamel",
+    species: "mammal",
     sector: "bird",
   },
   {
     name: "ovca",
-    species: "mamel",
+    species: "mammal",
     date_of_birth: new Date().toDateString(),
-    sector: "snake",
+    sector: "bird",
   },
   {
     name: "pas",
-    species: "mamel",
+    species: "mammal",
     date_of_birth: new Date().toDateString(),
-    sector: "snake",
+    sector: "bird",
   },
 ];
 
-const animalSector = ["bird", "snake"];
+const animalSectors = ["bird", "snake"];
 
 const AnimalList = () => {
   //IDE HOOK
   const [animals, setAnimals] = useState(listOfAnimals);
-  const [animalSectors, setAnimalSectors] = useState(animalSector);
-  const [name, setName] = useState("");
-  const [species, setSpecies] = useState("");
-  const [dateOfBirth, setDateOfBirth] = useState("");
-  const [sector, setSector] = useState("");
+
+  const [state, setState] = useState({
+    name: "",
+    species: "",
+    date_of_birth: "",
+    sector: "",
+  });
 
   const onRemove = (name) => {
     setAnimals((prevState) =>
-      prevState.filter((animal) => animal.name === name)
+      prevState.filter((animal) => animal.name !== name)
     );
   };
 
-  const onTop = (index) => {
-    const topAnimal = animals[index];
-    setAnimals((prevState) => [
-      topAnimal,
-      ...prevState.filter((_, id) => id !== index),
-    ]);
+  const onMoveToTop = (name) => {
+    setAnimals(
+      (prevState) =>
+        (prevState = [
+          prevState.filter((animal) => animal.name === name)[0],
+          ...prevState.filter((animal) => animal.name !== name),
+        ])
+    );
   };
 
-  const onInputNameChange = (e) => {
-    setName(e.target.value);
-  };
-
-  const onInputSpeciesChange = (e) => {
-    setSpecies(e.target.value);
-  };
-
-  const onInputDateOfBirthChange = (e) => {
-    setDateOfBirth(e.target.value);
-  };
-
-  const onInputSectorChange = (e) => {
-    setSector(e.target.value);
-  };
-
-  const addAnimal = (e) => {
-    e.preventDefault();
-
-    setAnimals((prevState) => [
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    setState((prevState) => ({
       ...prevState,
-      {
-        name: name,
-        species: species,
-        date_of_birth: dateOfBirth,
-      },
-    ]);
+      [name]: value,
+    }));
   };
 
-  const showAnimals = (sectorName) => {
-    alert(
-      animals
-        .filter((animal) => animal.sector === sectorName)
-        .map((animal) => animal.name)
-    );
+  const onSector = (sector) => {
+    let sectorAnimals = animals.filter((animal) => animal.sector == sector);
+    let animalsCombined = "";
+    sectorAnimals.forEach((animal) => (animalsCombined += animal.name + " "));
+    alert(animalsCombined);
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    console.log(state.sector);
+
+    let newAnimal = {
+      name: state.name,
+      species: state.species,
+      date_of_birth: state.date_of_birth,
+      sector: state.sector,
+    };
+    console.log(state);
+
+    setAnimals((prevState) => (prevState = [...prevState, newAnimal]));
   };
 
   return (
     <div>
-      <form>
-        <label>Name</label>
-        <input type="text" onChange={onInputNameChange} />
-
-        <label>Species</label>
-        <input type="text" onChange={onInputSpeciesChange} />
-
-        <label>Date of Birth</label>
-        <input type="date" onChange={onInputDateOfBirthChange} />
-
-        <select onSelect={onInputSectorChange}>
-          <option value="bird">Bird</option>
-          <option value="snake">Snake</option>
-        </select>
-
-        <button onSubmit={addAnimal} type="submit">
-          Add Animal
-        </button>
-      </form>
-      <table>
-        <thead>
-          <tr>
-            <th>Ime zivotinje</th>
-            <th>Vrsta zivotinje</th>
-            <th>Datum zivotinje</th>
-            <th>Sektor zivotinje</th>
-            <th>Remove</th>
-          </tr>
-        </thead>
-        <tbody>
-          {animals.map((animal, index) => (
-            // pozovi hook
-            <tr key={index}>
-              <td>{animal.name}</td>
-              <td>{animal.species}</td>
-              <td>{animal.date_of_birth}</td>
-              <td>{animal.sector}</td>
-              <td>
-                <button onClick={() => onRemove(animal.name)}>Remove</button>
-                <button onClick={() => onTop(index)}>Move to top</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <table>
-        <thead>
-          <tr>
-            <th>Ime sektora</th>
-            <th>Show</th>
-          </tr>
-        </thead>
-        <tbody>
-          {animalSectors.map((sector, index) => (
-            // pozovi hook
-            <tr key={index}>
-              <td>{sector}</td>
-              <td>
-                <button onClick={() => showAnimals(sector)}>Show</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <AnimalForm
+        handleSubmit={handleSubmit}
+        handleInputChange={handleInputChange}
+        state={state}
+      />
+      <AnimalsDisplay
+        animals={animals}
+        onRemove={onRemove}
+        onMoveToTop={onMoveToTop}
+      />
+      <SectorsDisplay
+        animals={animals}
+        animalSectors={animalSectors}
+        onSector={onSector}
+      />
     </div>
   );
 };
